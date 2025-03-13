@@ -80,3 +80,20 @@ par(mfrow = c(1,2))
 acf(IR$value_stac, lag.max = 20, na.action = na.pass, col = "#17a589")
 pacf(IR$value_stac, lag.max = 20, na.action = na.pass, col = "#17a589")
 
+# Odhadnuti ARMA modelu
+orders <- expand.grid(p = c(1,2,3), q = c(1,2,3))
+orders <- orders[!(orders$p == 3 & orders$q > 1), ]
+
+CPImodels <- lapply(1:nrow(orders), function(i) {
+  order <- as.numeric(orders[i, ])
+  CPImodel <- arima(CPI$value_stac, order = c(order[1], 0, order[2]))
+  print(CPImodel)
+  return(CPImodel)
+})
+
+IRmodels <- lapply(1:nrow(orders), function(i) {
+  order <- as.numeric(orders[i, ])
+  IRmodel <- arima(IR$value_stac, order = c(order[1], 0, order[2]))
+  print(IRmodel)
+  return(IRmodel)
+})
