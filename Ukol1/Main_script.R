@@ -97,3 +97,4 @@ IRmodels <- lapply(1:nrow(orders), function(i) {
   return(IRmodel)
 })
 
+# Danecek je buh
