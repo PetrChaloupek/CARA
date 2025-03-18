@@ -213,5 +213,5 @@ hist(e_best_cpi, col = "#4BACC6")
 
 shapiro.test(e_best_cpi)
 
-
+djdksksjfidijfidjfkd
 
