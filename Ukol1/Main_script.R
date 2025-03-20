@@ -159,3 +159,14 @@ plot_fit <- function(data, title, color) {
 plot_fit(CPI_stac, "Časová rada CPI + Fit", "indianred")
 plot_fit(IR_stac, "Časová rada IR + Fit", "skyblue")
 
+############################### ULOHA C. 5 #####################################
+#Predikovanie 1 až 4 krokmi
+
+
+
+
+
+
+
+
+
