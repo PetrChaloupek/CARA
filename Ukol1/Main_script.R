@@ -127,19 +127,35 @@ print(best_ir_model)
 
 # Analýza reziduí
 
-e_best_cpi <- residuals(best_cpi_model)
-e_best_cpi <- na.omit(e_best_cpi)
-
-acf(e_best_cpi, lag.max = 20, na.action = na.pass, col = "#4BACC6")
-pacf(e_best_cpi, lag.max = 20, na.action = na.pass, col = "#4BACC6")
-
-e_best_ir <- residuals(best_ir_model)
-e_best_ir <- na.omit(e_best_ir)
-
-acf(e_best_ir, lag.max = 20, na.action = na.pass, col = "#17a589")
-pacf(e_best_ir, lag.max = 20, na.action = na.pass, col = "#17a589")
+checkresiduals(best_cpi_model)
+checkresiduals(best_ir_model)
 
 # Q-testy
 
 Box.test(e_best_cpi, lag = 20, type = "Ljung-Box")
 Box.test(e_best_ir, lag = 20, type = "Ljung-Box")
+
+
+############################### ULOHA C. 4 #####################################
+#Zobrazenie povodnej casovej rady s fittovanymi hodnotami
+library(dplyr)
+
+# Získanie fittovaných hodnôt a ich orezanie na správnu dĺžku
+CPI_stac <- CPI[-1, ] %>% mutate(fitted = fitted(best_cpi_model)[1:(nrow(.) )])
+IR_stac <- IR[-1, ] %>% mutate(fitted = fitted(best_ir_model)[1:(nrow(.) )])
+
+# Funkcia na vykreslenie časového radu s fittovanými hodnotami
+plot_fit <- function(data, title, color) {
+  ggplot(data) +
+    geom_line(aes(x = date, y = value_stac), color = "black", lwd = 1) +   # Pôvodná séria
+    geom_line(aes(x = date, y = fitted), color = color, lwd = 1, linetype = "dashed") +  # Fit ARMA
+    theme_bw() +
+    labs(title = title, x = "Čas", y = "Delta log hodnoty") +
+    scale_x_date(date_labels = "%Y", date_breaks = "10 years") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+}
+
+# Vykreslenie grafov
+plot_fit(CPI_stac, "Časová rada CPI + Fit", "indianred")
+plot_fit(IR_stac, "Časová rada IR + Fit", "skyblue")
+
