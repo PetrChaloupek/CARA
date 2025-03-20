@@ -2,6 +2,7 @@
 ######################## CASOVE RADY - UKOL C. 1 ###############################
 ################################################################################
 
+
 rm(list = ls())
 cat("\014")
 
@@ -14,6 +15,7 @@ library(forecast)
 library(fredr)
 library(scales)
 library(tseries)
+FRED_API_KEY=95afb798f45e5bc52f67c5ae1ab7ef19
 
 ################################################################################
 # Import dat
@@ -134,6 +136,53 @@ checkresiduals(best_ir_model)
 
 Box.test(e_best_cpi, lag = 20, type = "Ljung-Box")
 Box.test(e_best_ir, lag = 20, type = "Ljung-Box")
+
+# Jednoduchá funkcia na vykreslenie jednotkového kruhu a koreňov ARMA modelu
+plot_unit_roots <- function(model, title) {
+  # Výpočet koreňov pre AR a MA časti modelu
+  ar_roots <- polyroot(c(1, -model$coef[grep("ar", names(model$coef))]))
+  ma_roots <- polyroot(c(1, model$coef[grep("ma", names(model$coef))]))
+  
+  # Vytvorenie dátového rámca pre AR a MA korene
+  roots_df <- data.frame(
+    Re = c(Re(ar_roots), Re(ma_roots)),
+    Im = c(Im(ar_roots), Im(ma_roots)),
+    Type = rep(c("AR korene", "MA korene"), c(length(ar_roots), length(ma_roots)))
+  )
+  
+  # Vykreslenie grafu pomocou ggplot2
+  ggplot(roots_df, aes(x = Re, y = Im, color = Type)) +
+    geom_point(size = 3) +                          # Korene
+    annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)), 
+             y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +  # Jednotkový kruh
+    scale_color_manual(values = c("red", "blue")) + 
+    labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
+    coord_fixed() +
+    theme_minimal()
+}
+
+# Vykreslenie pre najlepší CPI model
+plot_unit_roots(best_cpi_model, "Jednotkový kruh - CPI Model")
+
+# Vykreslenie pre najlepší IR model
+plot_unit_roots(best_ir_model, "Jednotkový kruh - IR Model")
+
+library(ggplot2)
+
+plot_unit_roots <- function(model, title) {
+  roots <- lapply(c("ar", "ma"), function(x) polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
+  df <- data.frame(Re = unlist(lapply(roots, Re)), Im = unlist(lapply(roots, Im)), 
+                   Type = rep(c("AR", "MA"), sapply(roots, length)))
+  ggplot(df, aes(Re, Im, color = Type)) + geom_point(size = 3) +
+    annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)), 
+             y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +
+    labs(title = title, x = "Reálna časť", y = "Imaginárna časť") + 
+    coord_fixed() + theme_minimal()
+}
+
+plot_unit_roots(best_cpi_model, "Jednotkový kruh - CPI Model")
+plot_unit_roots(best_ir_model, "Jednotkový kruh - IR Model")
+
 
 
 ############################### ULOHA C. 4 #####################################
