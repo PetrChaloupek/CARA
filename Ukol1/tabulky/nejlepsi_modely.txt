@@ -1,0 +1,67 @@
+=== Nejlepší ARIMA modely podle AIC a BIC ===
+
+Nejlepší CPI model podle AIC:
+
+Call:
+arima(x = CPI$value_stac, order = c(order[1], 0, order[2]))
+
+Coefficients:
+         ar1     ar2      ar3     ar4      ar5      ar6     ar7      ar8     ar9    ar10      ma1      ma2
+      0.4687  0.1161  -0.8343  0.6362  -0.2486  -0.5008  0.4257  -0.3674  0.2626  0.1858  -0.1389  -0.3512
+s.e.  0.0809  0.0870   0.0714  0.0842   0.0899   0.0911  0.0734   0.0580  0.0696  0.0698   0.0633   0.0582
+         ma3      ma4      ma5     ma6  intercept
+      0.8416  -0.2322  -0.0290  0.8330     0.4070
+s.e.  0.0594   0.0611   0.0521  0.0524     0.0347
+
+sigma^2 estimated as 0.08145:  log likelihood = -60.97,  aic = 157.94
+
+----------------------------------------
+
+Nejlepší CPI model podle BIC:
+
+Call:
+arima(x = CPI$value_stac, order = c(order[1], 0, order[2]))
+
+Coefficients:
+         ar1      ar2     ar3      ar4      ar5     ar6      ar7     ar8     ar9    ar10      ma1     ma2
+      0.7743  -0.9243  0.3264  -0.0670  -0.0768  0.1835  -0.0456  0.0866  0.0248  0.2716  -0.4254  0.6542
+s.e.  0.0919   0.1063  0.0918   0.0887   0.0887  0.0913   0.0925  0.0924  0.0784  0.0623   0.0860  0.0854
+      intercept
+         0.4161
+s.e.     0.0442
+
+sigma^2 estimated as 0.08821:  log likelihood = -70.25,  aic = 168.51
+
+----------------------------------------
+
+Nejlepší IR model podle AIC:
+
+Call:
+arima(x = IR$value_stac, order = c(order[1], 0, order[2]))
+
+Coefficients:
+         ar1      ar2      ar3      ar4     ar5      ar6     ar7      ma1     ma2     ma3     ma4      ma5
+      0.5287  -0.4116  -0.3828  -0.0867  0.2018  -0.9353  0.3073  -0.0158  0.1578  0.6500  0.3033  -0.0705
+s.e.  0.2209   0.0686   0.0903   0.1132  0.0761   0.0572  0.2100   0.2326  0.0976  0.0755  0.1102   0.1171
+         ma6     ma7     ma8     ma9  intercept
+      0.9765  0.2479  0.0008  0.3326    -0.0079
+s.e.  0.1168  0.2002  0.1327  0.0769     0.0061
+
+sigma^2 estimated as 0.00247:  log likelihood = 412.13,  aic = -788.27
+
+----------------------------------------
+
+Nejlepší IR model podle BIC:
+
+Call:
+arima(x = IR$value_stac, order = c(order[1], 0, order[2]))
+
+Coefficients:
+         ma1  intercept
+      0.5731    -0.0073
+s.e.  0.0520     0.0055
+
+sigma^2 estimated as 0.003197:  log likelihood = 385.08,  aic = -764.17
+
+----------------------------------------
+
