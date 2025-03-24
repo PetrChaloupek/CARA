@@ -3,7 +3,7 @@
 ################################################################################
 
 ## Updated upstream
-fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
+# fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
 
 rm(list = ls())
 cat("\014")
