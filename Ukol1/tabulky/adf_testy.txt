@@ -1,0 +1,24 @@
+=== ADF testy stacionarity ===
+
+CPI – ADF test:
+
+	Augmented Dickey-Fuller Test
+
+data:  CPI_value_stac
+Dickey-Fuller = -5.6501, Lag order = 6, p-value = 0.01
+alternative hypothesis: stationary
+
+
+----------------------------------------
+
+IR – ADF test:
+
+	Augmented Dickey-Fuller Test
+
+data:  IR_value_stac
+Dickey-Fuller = -5.3536, Lag order = 6, p-value = 0.01
+alternative hypothesis: stationary
+
+
+----------------------------------------
+

@@ -3,7 +3,7 @@
 ################################################################################
 
 ## Updated upstream
-# fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
+fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
 
 rm(list = ls())
 cat("\014")
@@ -27,15 +27,15 @@ library(magrittr)
 #data bereme od roku 1980, protoze ropne soky a strukturalni zlomy
 
 CPI <- fredr(
-  series_id = "CPIAUCSL",
-  observation_start = as.Date("1980-01-01"),
-  observation_end = as.Date("2008-02-01")
+    series_id = "CPIAUCSL",
+    observation_start = as.Date("1980-01-01"),
+    observation_end = as.Date("2008-02-01")
 )
 
 IR <- fredr(
-  series_id = "TB3MS",
-  observation_start = as.Date("1980-01-01"),
-  observation_end = as.Date("2002-02-01")
+    series_id = "TB3MS",
+    observation_start = as.Date("1980-01-01"),
+    observation_end = as.Date("2002-02-01")
 )
 
 ############################### ULOHA C. 1 #####################################
@@ -43,20 +43,20 @@ IR <- fredr(
 dir.create("grafy", showWarnings = FALSE)
 
 CPI_original <- ggplot() +
-  geom_line(data = CPI, aes(x = date, y = value), color ="#4BACC6") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  labs(x = "Datum", y = "CPI") +
-  scale_x_date(date_labels = "%Y", date_breaks = "10 years")
+    geom_line(data = CPI, aes(x = date, y = value), color ="#4BACC6") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(x = "Datum", y = "CPI") +
+    scale_x_date(date_labels = "%Y", date_breaks = "10 years")
 
 ggsave(filename = "grafy/CPI_original.png", plot = CPI_original, width = 8, height = 4, dpi = 300)
 
 IR_original <- ggplot()+
-  geom_line(data = IR, aes(x = date, y = value), color = "#17a589") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  labs(x = "Datum", y = "IR") +
-  scale_x_date(date_labels = "%Y", date_breaks = "10 years")
+    geom_line(data = IR, aes(x = date, y = value), color = "#17a589") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(x = "Datum", y = "IR") +
+    scale_x_date(date_labels = "%Y", date_breaks = "10 years")
 
 ggsave(filename = "grafy/IR_original.png", plot = IR_original, width = 8, height = 4, dpi = 300)
 
@@ -73,28 +73,41 @@ IR_value_stac <- na.omit(IR$value_stac)
 
 # Testovani stacionarity
 
-adf.test(CPI_value_stac)
-adf.test(IR_value_stac)
+adf_cpi <- adf.test(CPI_value_stac)
+adf_ir <- adf.test(IR_value_stac)
+
+sink("tabulky/adf_testy.txt")
+cat("=== ADF testy stacionarity ===\n\n")
+
+cat("CPI – ADF test:\n")
+print(adf_cpi)
+cat("\n----------------------------------------\n\n")
+
+cat("IR – ADF test:\n")
+print(adf_ir)
+cat("\n----------------------------------------\n\n")
+
+sink()
 
 # Vykresleni novych casovych rad
 
 CPI_new <- ggplot()+
-  geom_line(data = CPI, aes(x = date, y = value_stac), color ="#4BACC6") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  labs(x = "Datum", y = "Delta log CPI") +
-  scale_x_date(date_labels = "%Y", date_breaks = "10 years")
+    geom_line(data = CPI, aes(x = date, y = value_stac), color ="#4BACC6") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(x = "Datum", y = "Delta CPI") +
+    scale_x_date(date_labels = "%Y", date_breaks = "5 years")
 
-ggsave(filename = "grafy/CPI_new.png", plot = CPI_original, width = 8, height = 4, dpi = 300)
+ggsave(filename = "grafy/CPI_new.png", plot = CPI_new, width = 8, height = 4, dpi = 300)
 
 IR_new <- ggplot()+
-  geom_line(data = IR, aes(x = date, y = value_stac), color = "#17a589") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  labs(x = "Datum", y = "Delta log IR") +
-  scale_x_date(date_labels = "%Y", date_breaks = "10 years")
+    geom_line(data = IR, aes(x = date, y = value_stac), color = "#17a589") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(x = "Datum", y = "Delta log IR") +
+    scale_x_date(date_labels = "%Y", date_breaks = "5 years")
 
-ggsave(filename = "grafy/IR_new.png", plot = CPI_original, width = 8, height = 4, dpi = 300)
+ggsave(filename = "grafy/IR_new.png", plot = IR_new, width = 8, height = 4, dpi = 300)
 
 ############################### ULOHA C. 2 #####################################
 # ACD a PACF casovych rad
@@ -104,9 +117,9 @@ par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
 
 # ACF a PACF grafy
 acf(CPI$value_stac, lag.max = 20, na.action = na.pass, col = "#4BACC6",
-    main = "ACF CPI (log diff)", xlab = "Lag", ylab = "Autokorelace")
+    main = "ACF CPI (diff)", xlab = "Lag", ylab = "Autokorelace")
 pacf(CPI$value_stac, lag.max = 20, na.action = na.pass, col = "#4BACC6",
-     main = "PACF CPI (log diff)", xlab = "Lag", ylab = "Parciální autokorelace")
+     main = "PACF CPI (diff)", xlab = "Lag", ylab = "Parciální autokorelace")
 
 dev.off()
 
@@ -116,7 +129,7 @@ par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
 acf(IR$value_stac, lag.max = 20, na.action = na.pass, col = "#17a589",
     main = "ACF IR (log diff)", xlab = "Lag", ylab = "Autokorelace")
 pacf(IR$value_stac, lag.max = 20, na.action = na.pass, col = "#17a589",
-     main = "PACF IR (log diff)", xlab = "Lag", ylab = "Parciální autokorelace")
+     main = "PACF CPI (log diff)", xlab = "Lag", ylab = "Parciální autokorelace")
 
 dev.off()
 
@@ -124,17 +137,17 @@ dev.off()
 orders <- expand.grid(p = c(0:10), q = c(0:10))
 
 CPImodels <- lapply(1:nrow(orders), function(i) {
-  order <- as.numeric(orders[i, ])
-  CPImodel <- arima(CPI$value_stac, order = c(order[1], 0, order[2]))
-  # print(CPImodel)
-  return(CPImodel)
+    order <- as.numeric(orders[i, ])
+    CPImodel <- arima(CPI$value_stac, order = c(order[1], 0, order[2]))
+    # print(CPImodel)
+    return(CPImodel)
 })
 
 IRmodels <- lapply(1:nrow(orders), function(i) {
-  order <- as.numeric(orders[i, ])
-  IRmodel <- arima(IR$value_stac, order = c(order[1], 0, order[2]))
-  # print(IRmodel)
-  return(IRmodel)
+    order <- as.numeric(orders[i, ])
+    IRmodel <- arima(IR$value_stac, order = c(order[1], 0, order[2]))
+    # print(IRmodel)
+    return(IRmodel)
 })
 
 ############################### ULOHA C. 3 #####################################
@@ -222,66 +235,66 @@ Box.test(best_ir_model_bic$residuals, lag = 12, type = "Ljung-Box")
 #prosím o opravení, díky
 
 plot_inv_roots <- function(model, title) {
-  roots <- lapply(c("ar", "ma"), function(x) 1 / polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
-  df <- data.frame(Re = unlist(lapply(roots, Re)),
-                   Im = unlist(lapply(roots, Im)),
-                   Type = rep(c("AR", "MA"), sapply(roots, length)))
+    roots <- lapply(c("ar", "ma"), function(x) 1 / polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
+    df <- data.frame(Re = unlist(lapply(roots, Re)),
+                     Im = unlist(lapply(roots, Im)),
+                     Type = rep(c("AR", "MA"), sapply(roots, length)))
 
-  ggplot(df, aes(Re, Im, color = Type)) +
-    geom_point(size = 3) +
-    annotate("path", x = cos(seq(0, 2*pi, length.out = 100)),
-             y = sin(seq(0, 2*pi, length.out = 100)), linetype = "dashed") +
-    scale_color_manual(values = c("indianred", "skyblue")) +  # Červená pre AR, modrá pre MA
-    labs(title = title, x = "Reálna časť", y = "Imaginárna časť")
-
-
-# Jednoduchá funkcia na vykreslenie jednotkového kruhu a koreňov ARMA modelu
-plot_unit_roots <- function(model, title) {
-  # Výpočet koreňov pre AR a MA časti modelu
-  ar_roots <- polyroot(c(1, -model$coef[grep("ar", names(model$coef))]))
-  ma_roots <- polyroot(c(1, model$coef[grep("ma", names(model$coef))]))
-
-  # Vytvorenie dátového rámca pre AR a MA korene
-  roots_df <- data.frame(
-    Re = c(Re(ar_roots), Re(ma_roots)),
-    Im = c(Im(ar_roots), Im(ma_roots)),
-    Type = rep(c("AR korene", "MA korene"), c(length(ar_roots), length(ma_roots)))
-  )
-
-  # Vykreslenie grafu pomocou ggplot2
-  ggplot(roots_df, aes(x = Re, y = Im, color = Type)) +
-    geom_point(size = 3) +                          # Korene
-    annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)),
-             y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +  # Jednotkový kruh
-    scale_color_manual(values = c("red", "blue")) +
-    labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
-    coord_fixed() +
-    theme_minimal()
-}
-
-# Vykreslenie pre najlepší CPI model
-plot_unit_roots(best_cpi_model, "Jednotkový kruh - CPI Model")
-
-# Vykreslenie pre najlepší IR model
-plot_unit_roots(best_ir_model, "Jednotkový kruh - IR Model")
+    ggplot(df, aes(Re, Im, color = Type)) +
+        geom_point(size = 3) +
+        annotate("path", x = cos(seq(0, 2*pi, length.out = 100)),
+                 y = sin(seq(0, 2*pi, length.out = 100)), linetype = "dashed") +
+        scale_color_manual(values = c("indianred", "skyblue")) +  # Červená pre AR, modrá pre MA
+        labs(title = title, x = "Reálna časť", y = "Imaginárna časť")
 
 
-plot_unit_roots <- function(model, title) {
-  roots <- lapply(c("ar", "ma"), function(x) polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
-  df <- data.frame(Re = unlist(lapply(roots, Re)), Im = unlist(lapply(roots, Im)),
-                   Type = rep(c("AR", "MA"), sapply(roots, length)))
-  ggplot(df, aes(Re, Im, color = Type)) + geom_point(size = 3) +
-    annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)),
-             y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +
-    labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
-    coord_fixed() + theme_minimal()
-}
+    # Jednoduchá funkcia na vykreslenie jednotkového kruhu a koreňov ARMA modelu
+    plot_unit_roots <- function(model, title) {
+        # Výpočet koreňov pre AR a MA časti modelu
+        ar_roots <- polyroot(c(1, -model$coef[grep("ar", names(model$coef))]))
+        ma_roots <- polyroot(c(1, model$coef[grep("ma", names(model$coef))]))
 
-plot_inv_roots(best_cpi_model_aic, "Inverzné korene - CPI")
-plot_inv_roots(best_ir_model, "Inverzné korene - IR")
+        # Vytvorenie dátového rámca pre AR a MA korene
+        roots_df <- data.frame(
+            Re = c(Re(ar_roots), Re(ma_roots)),
+            Im = c(Im(ar_roots), Im(ma_roots)),
+            Type = rep(c("AR korene", "MA korene"), c(length(ar_roots), length(ma_roots)))
+        )
 
-############################### ULOHA C. 4 #####################################
-#puvodni funkce od chatu vykreslila dvakrat to same, akorat jednou cervene a jednou modre :-)
+        # Vykreslenie grafu pomocou ggplot2
+        ggplot(roots_df, aes(x = Re, y = Im, color = Type)) +
+            geom_point(size = 3) +                          # Korene
+            annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)),
+                     y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +  # Jednotkový kruh
+            scale_color_manual(values = c("red", "blue")) +
+            labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
+            coord_fixed() +
+            theme_minimal()
+    }
+
+    # Vykreslenie pre najlepší CPI model
+    plot_unit_roots(best_cpi_model, "Jednotkový kruh - CPI Model")
+
+    # Vykreslenie pre najlepší IR model
+    plot_unit_roots(best_ir_model, "Jednotkový kruh - IR Model")
+
+
+    plot_unit_roots <- function(model, title) {
+        roots <- lapply(c("ar", "ma"), function(x) polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
+        df <- data.frame(Re = unlist(lapply(roots, Re)), Im = unlist(lapply(roots, Im)),
+                         Type = rep(c("AR", "MA"), sapply(roots, length)))
+        ggplot(df, aes(Re, Im, color = Type)) + geom_point(size = 3) +
+            annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)),
+                     y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +
+            labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
+            coord_fixed() + theme_minimal()
+    }
+
+    plot_inv_roots(best_cpi_model_aic, "Inverzné korene - CPI")
+    plot_inv_roots(best_ir_model, "Inverzné korene - IR")
+
+    ############################### ULOHA C. 4 #####################################
+    #puvodni funkce od chatu vykreslila dvakrat to same, akorat jednou cervene a jednou modre :-)
 
 CPI_fitted_aic <- fitted(best_cpi_model_aic)
 CPI_fitted_bic <- fitted(best_cpi_model_bic)
@@ -313,7 +326,7 @@ p_ir_aic <- ggplot(IR_data_fit, aes(x = date)) +
     labs(title = "IR – Fitted (AIC)", x = "Datum", y = "Δ log IR", color = NULL) +
     theme_bw()
 
-p_ir_bic <- ggplot(IR_data_fit, aes(x = date)) +
+    p_ir_bic <- ggplot(IR_data_fit, aes(x = date)) +
     geom_line(aes(y = IR_value_stac, color = "Skutečná hodnota")) +
     geom_line(aes(y = IR_fitted_bic[-1], color = "Fitted (BIC)")) +
     scale_color_manual(values = c("Skutečná hodnota" = "black", "Fitted (BIC)" = "#17a589")) +
@@ -321,13 +334,15 @@ p_ir_bic <- ggplot(IR_data_fit, aes(x = date)) +
     theme_bw()
 
 cpi_fitted <- (p_cpi_aic + p_cpi_bic + plot_layout(guides = "collect") & theme(legend.position = "bottom"))
-ggsave("grafy/CPI_fitted.png", plot = plot_cpi, width = 12, height = 5, dpi = 300)
+ggsave("grafy/CPI_fitted.png", plot = cpi_fitted, width = 12, height = 5, dpi = 300)
 
 ir_fitted <- (p_ir_aic + p_ir_bic + plot_layout(guides = "collect") & theme(legend.position = "bottom"))
-ggsave("grafy/IR_fitted.png", plot = plot_cpi, width = 12, height = 5, dpi = 300)
+ggsave("grafy/IR_fitted.png", plot = ir_fitted, width = 12, height = 5, dpi = 300)
 
 
 ############################### ULOHA C. 5 #####################################
+
+
 
 
 
