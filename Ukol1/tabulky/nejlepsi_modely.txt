@@ -40,14 +40,14 @@ Call:
 arima(x = IR$value_stac, order = c(order[1], 0, order[2]))
 
 Coefficients:
-         ar1      ar2      ar3      ar4     ar5      ar6     ar7      ma1     ma2     ma3     ma4      ma5
-      0.5287  -0.4116  -0.3828  -0.0867  0.2018  -0.9353  0.3073  -0.0158  0.1578  0.6500  0.3033  -0.0705
-s.e.  0.2209   0.0686   0.0903   0.1132  0.0761   0.0572  0.2100   0.2326  0.0976  0.0755  0.1102   0.1171
-         ma6     ma7     ma8     ma9  intercept
-      0.9765  0.2479  0.0008  0.3326    -0.0079
-s.e.  0.1168  0.2002  0.1327  0.0769     0.0061
+         ar1     ar2      ar3     ar4     ar5      ar6     ma1      ma2     ma3      ma4      ma5     ma6
+      0.4076  0.7584  -0.4655  0.9693  0.1362  -0.8376  0.1113  -0.9962  0.1033  -0.8283  -0.5668  0.8752
+s.e.     NaN  0.0352   0.0257  0.0156  0.0114   0.0333     NaN      NaN  0.0627   0.0610      NaN     NaN
+         ma7  intercept
+      0.3017    -0.0052
+s.e.  0.0689     0.0004
 
-sigma^2 estimated as 0.00247:  log likelihood = 412.13,  aic = -788.27
+sigma^2 estimated as 0.002849:  log likelihood = 500.11,  aic = -970.22
 
 ----------------------------------------
 
@@ -58,10 +58,10 @@ arima(x = IR$value_stac, order = c(order[1], 0, order[2]))
 
 Coefficients:
          ma1  intercept
-      0.5731    -0.0073
-s.e.  0.0520     0.0055
+      0.5637    -0.0055
+s.e.  0.0497     0.0051
 
-sigma^2 estimated as 0.003197:  log likelihood = 385.08,  aic = -764.17
+sigma^2 estimated as 0.003526:  log likelihood = 473.24,  aic = -940.48
 
 ----------------------------------------
 
