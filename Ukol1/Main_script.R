@@ -343,17 +343,238 @@ plot_inv_roots <- function(model, title) {
 
 
 ############################### ULOHA C. 5 #####################################
+  # ====== Časové rady ======
+  cpi_monthly <- ts(CPI_value_stac, start = c(1980, 2), frequency = 12)
+  ir_monthly  <- ts(IR_value_stac, start = c(1980, 2), frequency = 12)
   
-
-
-
-
-
-
-
-
-
-
-=======
+  # ====== Parametre predikcie ======
+  h <- 4  # predikčný horizont
+  zacatek <- c(2002, 8)  # začiatok testovacej časti
+  konec   <- c(2008, 2)  # koniec testovacej časti
   
->>>>>>> Stashed changes
+  # ====== Vypočítanie parametrov pre CPI a IR ======
+  H_cpi <- length(window(cpi_monthly, start = zacatek, end = konec))
+  prvni_cpi <- 1
+  posledni_cpi <- length(window(cpi_monthly, end = zacatek)) - 1
+  
+  H_ir <- length(window(ir_monthly, start = zacatek, end = konec))
+  prvni_ir <- 1
+  posledni_ir <- length(window(ir_monthly, end = zacatek)) - 1
+  
+  # ====== Modely, arima ktore nam vysli najlepsie ======
+  models <- list(
+    list(name = "CPI_AIC", p = 10, q = 6, series = cpi_monthly, H = H_cpi, prvni = prvni_cpi, posledni = posledni_cpi),
+    list(name = "CPI_BIC", p = 10, q = 2, series = cpi_monthly, H = H_cpi, prvni = prvni_cpi, posledni = posledni_cpi),
+    list(name = "IR_AIC",  p = 6,  q = 7, series = ir_monthly,  H = H_ir,  prvni = prvni_ir,  posledni = posledni_ir),
+    list(name = "IR_BIC",  p = 0,  q = 1, series = ir_monthly,  H = H_ir,  prvni = prvni_ir,  posledni = posledni_ir)
+  )
+  
+  # ====== Vymazanie a inicializácia výsledkového dataframe ======
+  if (exists("df")) rm(df)
+  
+  df <- data.frame(
+    model = character(),
+    p = integer(),
+    q = integer(),
+    pred = I(list()),
+    errors = I(list()),
+    MSPE = I(list()),
+    RMSPE = I(list()),
+    MAPE = I(list()),
+    stringsAsFactors = FALSE
+  )
+  
+  # ====== Rekurzívne predikcie cez každý model ======
+  for (mod in models) {
+    pom_F <- matrix(NA, nrow = mod$H, ncol = h)
+    pom_E <- matrix(NA, nrow = mod$H, ncol = h)
+    
+    for (T in 1:mod$H) {
+      y_train <- mod$series[mod$prvni:(mod$posledni + T - 1)]
+      
+      model_fit <- tryCatch(
+        arima(y_train, order = c(mod$p, 0, mod$q)),
+        warning = function(w) NULL,
+        error   = function(e) NULL
+      )
+      
+      if (!is.null(model_fit)) {
+        pred <- tryCatch(predict(model_fit, n.ahead = h)$pred, error = function(e) rep(NA, h))
+        y_real <- mod$series[(mod$posledni + T):(mod$posledni + T + h - 1)]
+        
+        if (length(y_real) == h && !any(is.na(pred))) {
+          pom_F[T, ] <- pred
+          pom_E[T, ] <- y_real - pred
+        }
+      }
+    }
+    
+    # Výpočet chýb
+    MSPE  <- colMeans(pom_E^2, na.rm = TRUE)
+    RMSPE <- sqrt(MSPE)
+    MAPE  <- colMeans(abs(pom_E), na.rm = TRUE)
+    
+    # Uloženie výsledkov do df
+    df[nrow(df) + 1, ] <- list(
+      mod$name,
+      mod$p,
+      mod$q,
+      list(pom_F),
+      list(pom_E),
+      list(MSPE),
+      list(RMSPE),
+      list(MAPE)
+    )
+  }
+  
+  # ==== Rolling window predikcie ====
+  df_rolling <- data.frame(
+    model = character(),
+    p = integer(),
+    q = integer(),
+    MSPE = I(list()),
+    RMSPE = I(list()),
+    MAPE = I(list()),
+    stringsAsFactors = FALSE
+  )
+  
+  # ==== Rolling window dĺžka okna ====
+  window_size <- 120  
+  
+  # ==== Rolling predikcie pre každý model ====
+  for (mod in models) {
+    series <- mod$series
+    H <- mod$H
+    total_len <- length(series)
+    
+    # Počiatočný index tak, aby bolo dosť miesta pre okno aj predikciu
+    start_index <- total_len - H - window_size + 1
+    
+    pom_F <- matrix(NA, nrow = H, ncol = h)
+    pom_E <- matrix(NA, nrow = H, ncol = h)
+    
+    for (t in 1:H) {
+      idx_start <- start_index + t - 1
+      idx_end   <- idx_start + window_size - 1
+      
+      # Kontrola dĺžky
+      if ((idx_end + h) > total_len) next
+      
+      train_data <- series[idx_start:idx_end]
+      test_data  <- series[(idx_end + 1):(idx_end + h)]
+      
+      # Odhad ARIMA modelu s potlačením warningov
+      fit <- suppressWarnings(
+        tryCatch(
+          arima(train_data, order = c(mod$p, 0, mod$q)),
+          error = function(e) NULL
+        )
+      )
+      
+      # Ak sa model nepodaril, preskočíme iteráciu
+      if (is.null(fit)) next
+      
+      # Predikcia
+      pred <- suppressWarnings(
+        tryCatch(
+          predict(fit, n.ahead = h)$pred,
+          error = function(e) rep(NA, h)
+        )
+      )
+      
+      if (length(pred) == h) {
+        pom_F[t, ] <- pred
+        pom_E[t, ] <- test_data - pred
+      }
+    }
+    
+    # Výpočet výkonnostných metrík
+    MSPE <- colMeans(pom_E^2, na.rm = TRUE)
+    RMSPE <- sqrt(MSPE)
+    MAPE <- colMeans(abs(pom_E), na.rm = TRUE)
+    
+    # Pridanie do výsledkového dataframe
+    df_rolling[nrow(df_rolling) + 1, ] <- list(
+      mod$name, mod$p, mod$q,
+      list(MSPE), list(RMSPE), list(MAPE)
+    )
+  }
+  
+  cat("\n==== Výsledky: Expanding Window ====\n")
+  for (i in 1:nrow(df)) {
+    cat("\nModel:", df$model[i], "| ARMA(", df$p[i], ",", df$q[i], ")\n")
+    cat("MSPE:  ", round(df$MSPE[[i]], 4), "\n")
+    cat("RMSPE: ", round(df$RMSPE[[i]], 4), "\n")
+    cat("MAPE:  ", round(df$MAPE[[i]], 4), "\n")
+  }
+  
+  cat("\n==== Výsledky: Rolling Window ====\n")
+  for (i in 1:nrow(df_rolling)) {
+    cat("\nModel:", df_rolling$model[i], "| ARMA(", df_rolling$p[i], ",", df_rolling$q[i], ")\n")
+    cat("MSPE:  ", round(df_rolling$MSPE[[i]], 4), "\n")
+    cat("RMSPE: ", round(df_rolling$RMSPE[[i]], 4), "\n")
+    cat("MAPE:  ", round(df_rolling$MAPE[[i]], 4), "\n")
+  }
+  
+  
+  ############################### ULOHA C. 7 #####################################
+  # ====== Naivná predikcia pre CPI a IR ======
+  
+  naive_results <- data.frame(
+    series = character(),
+    MSPE = I(list()),
+    RMSPE = I(list()),
+    MAPE = I(list()),
+    stringsAsFactors = FALSE
+  )
+  
+  for (mod in list(
+    list(name = "NAIVE_CPI", series = cpi_monthly, H = H_cpi, posledni = posledni_cpi),
+    list(name = "NAIVE_IR",  series = ir_monthly,  H = H_ir,  posledni = posledni_ir)
+  )) {
+    
+    y_ts <- mod$series
+    H <- mod$H
+    posledni <- mod$posledni
+    
+    naive_F <- matrix(NA, nrow = H, ncol = h)
+    naive_y <- matrix(NA, nrow = H, ncol = h)
+    
+    for (T in 1:h) {
+      # posledná hodnota z trénovacej časti ako predikcia
+      naive_F[, T] <- y_ts[posledni:(posledni + H - 1)]
+      
+      # skutočné hodnoty z testovacej časti
+      pom <- y_ts[(posledni + T):(posledni + H - 1 + T)]
+      naive_y[1:length(pom), T] <- pom
+    }
+    
+    # Výpočet chýb
+    naive_E <- naive_y - naive_F
+    MSPE_naive <- colMeans(naive_E^2, na.rm = TRUE)
+    RMSPE_naive <- sqrt(MSPE_naive)
+    MAPE_naive <- colMeans(abs(naive_E), na.rm = TRUE)
+    
+    # Pridanie do výsledkov
+    naive_results[nrow(naive_results) + 1, ] <- list(
+      mod$name,
+      list(MSPE_naive),
+      list(RMSPE_naive),
+      list(MAPE_naive)
+    )
+  }
+  
+  cat("\n==== Výsledky: Naivná predikcia ====\n")
+  for (i in 1:nrow(naive_results)) {
+    cat("\nModel:", naive_results$series[i], "\n")
+    cat("MSPE:  ", round(naive_results$MSPE[[i]], 4), "\n")
+    cat("RMSPE: ", round(naive_results$RMSPE[[i]], 4), "\n")
+    cat("MAPE:  ", round(naive_results$MAPE[[i]], 4), "\n")
+  }
+  
+  
+  
+  
+  
+  
+  
