@@ -240,7 +240,7 @@ plot_inv_roots <- function(model, title) {
   roots <- lapply(c("ar", "ma"), function(x) 1 / polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
   df <- data.frame(Re = unlist(lapply(roots, Re)),
                    Im = unlist(lapply(roots, Im)),
-                   Type = rep(c("AR", "MA"), sapply(roots, length)))
+                   Type = rep(c("AR", "MA"), sapply(roots, length)))}
   
   ggplot(df, aes(Re, Im, color = Type)) +
     geom_point(size = 3) +
