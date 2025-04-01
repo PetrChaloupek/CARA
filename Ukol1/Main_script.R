@@ -224,68 +224,7 @@ Box.test(best_ir_model_aic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box") #tady to pro vyšší lag nevychází, ale fuck it we roll
 
 
-<<<<<<< HEAD
-=======
-plot_inv_roots <- function(model, title) {
-  roots <- lapply(c("ar", "ma"), function(x) 1 / polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
-  df <- data.frame(Re = unlist(lapply(roots, Re)),
-                   Im = unlist(lapply(roots, Im)),
-                   Type = rep(c("AR", "MA"), sapply(roots, length)))}
-  
-  ggplot(df, aes(Re, Im, color = Type)) +
-    geom_point(size = 3) +
-    annotate("path", x = cos(seq(0, 2*pi, length.out = 100)),
-             y = sin(seq(0, 2*pi, length.out = 100)), linetype = "dashed") +
-    scale_color_manual(values = c("indianred", "skyblue")) +  # Červená pre AR, modrá pre MA
-    labs(title = title, x = "Reálna časť", y = "Imaginárna časť")
-  
-  
-  # Jednoduchá funkcia na vykreslenie jednotkového kruhu a koreňov ARMA modelu
-  plot_unit_roots <- function(model, title) {
-    # Výpočet koreňov pre AR a MA časti modelu
-    ar_roots <- polyroot(c(1, -model$coef[grep("ar", names(model$coef))]))
-    ma_roots <- polyroot(c(1, model$coef[grep("ma", names(model$coef))]))
-    
-    # Vytvorenie dátového rámca pre AR a MA korene
-    roots_df <- data.frame(
-      Re = c(Re(ar_roots), Re(ma_roots)),
-      Im = c(Im(ar_roots), Im(ma_roots)),
-      Type = rep(c("AR korene", "MA korene"), c(length(ar_roots), length(ma_roots)))
-    )
-    
-    # Vykreslenie grafu pomocou ggplot2
-    ggplot(roots_df, aes(x = Re, y = Im, color = Type)) +
-      geom_point(size = 3) +                          # Korene
-      annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)),
-               y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +  # Jednotkový kruh
-      scale_color_manual(values = c("red", "blue")) +
-      labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
-      coord_fixed() +
-      theme_minimal()
-  }
-  
-  # Vykreslenie pre najlepší CPI model
-  plot_unit_roots(best_cpi_model, "Jednotkový kruh - CPI Model")
-  
-  # Vykreslenie pre najlepší IR model
-  plot_unit_roots(best_ir_model, "Jednotkový kruh - IR Model")
-  
-  
-  plot_unit_roots <- function(model, title) {
-    roots <- lapply(c("ar", "ma"), function(x) polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
-    df <- data.frame(Re = unlist(lapply(roots, Re)), Im = unlist(lapply(roots, Im)),
-                     Type = rep(c("AR", "MA"), sapply(roots, length)))
-    ggplot(df, aes(Re, Im, color = Type)) + geom_point(size = 3) +
-      annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)),
-               y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +
-      labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
-      coord_fixed() + theme_minimal()
-  }
-  
-  plot_inv_roots(best_cpi_model_aic, "Inverzné korene - CPI")
-  plot_inv_roots(best_ir_model, "Inverzné korene - IR")
-  
->>>>>>> origin/main
+
   ############################### ULOHA C. 4 #####################################
 #puvodni funkce od chatu vykreslila dvakrat to same, akorat jednou cervene a jednou modre :-)
 
