@@ -3,7 +3,7 @@
 ################################################################################
 
 ## Updated upstream
-fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
+#fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
 
 rm(list = ls())
 cat("\014")
@@ -224,8 +224,8 @@ Box.test(best_ir_model_aic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box") #tady to pro vyšší lag nevychází, ale fuck it we roll
 
 
-<<<<<<< HEAD
-=======
+#<<<<<<< HEAD
+#=======
 plot_inv_roots <- function(model, title) {
   roots <- lapply(c("ar", "ma"), function(x) 1 / polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
   df <- data.frame(Re = unlist(lapply(roots, Re)),
@@ -285,7 +285,6 @@ plot_inv_roots <- function(model, title) {
   plot_inv_roots(best_cpi_model_aic, "Inverzné korene - CPI")
   plot_inv_roots(best_ir_model, "Inverzné korene - IR")
   
->>>>>>> origin/main
   ############################### ULOHA C. 4 #####################################
 #puvodni funkce od chatu vykreslila dvakrat to same, akorat jednou cervene a jednou modre :-)
 
