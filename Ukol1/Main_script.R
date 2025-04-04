@@ -152,7 +152,7 @@ IRmodels <- lapply(1:nrow(orders), function(i) {
 
 dir.create("tabulky", showWarnings = FALSE)
 
-##Hledani nejlepsiho modelu pro CPI
+## Hledani nejlepsiho modelu pro CPI
 # podle AIC
 cpi_aic <- sapply(CPImodels, AIC)
 names(cpi_aic) <- apply(orders, 1, function(x) paste("p", x[1], "q", x[2], sep = "_"))
@@ -167,10 +167,8 @@ names(cpi_bic) <- apply(orders, 1, function(x) paste("p", x[1], "q", x[2], sep =
 best_cpi_model_bic <- CPImodels[[which.min(cpi_bic)]]
 best_cpi_model_bic
 
-
-
 ## Hledani nejlepsiho modelu pro IR
-#podle AIC
+# podle AIC
 ir_aic <- sapply(IRmodels, AIC)
 names(ir_aic) <- apply(orders, 1, function(x) paste("p", x[1], "q", x[2], sep = "_"))
 
@@ -223,9 +221,6 @@ Box.test(best_cpi_model_bic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_aic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box") #tady to pro vyšší lag nevychází, ale fuck it we roll
 
-
-#<<<<<<< HEAD
-#=======
 plot_inv_roots <- function(model, title) {
   roots <- lapply(c("ar", "ma"), function(x) 1 / polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
   df <- data.frame(Re = unlist(lapply(roots, Re)),
@@ -265,7 +260,7 @@ plot_inv_roots <- function(model, title) {
   }
   
   # Vykreslenie pre najlepší CPI model
-  plot_unit_roots(best_cpi_model, "Jednotkový kruh - CPI Model")
+  plot_unit_roots(best_cpi_model, "Jednotkový kruh - CPI Model") 
   
   # Vykreslenie pre najlepší IR model
   plot_unit_roots(best_ir_model, "Jednotkový kruh - IR Model")
@@ -333,7 +328,6 @@ ir_fitted <- (p_ir_aic + p_ir_bic + plot_layout(guides = "collect") & theme(lege
 
 
 ############################### ULOHA C. 5 #####################################
-# ====== Časové rady ======
 cpi_monthly <- ts(CPI_value_stac, start = c(1980, 2), frequency = 12)
 ir_monthly  <- ts(IR_value_stac, start = c(1980, 2), frequency = 12)
 
@@ -513,7 +507,7 @@ cat("\n==== Výsledky: Rolling Window ====\n")
   }
 
 
-  ############################### ULOHA C. 7 #####################################
+############################### ULOHA C. 7 #####################################
 # ====== Naivná predikcia pre CPI a IR ======
 
 naive_results <- data.frame(
@@ -641,5 +635,3 @@ autoplot(forecast_cpi) +
 autoplot(forecast_ir) +
     labs(title = "Out-of-sample predikce IR – BIC model", x = "Čas", y = "Δ log IR") +
     theme_bw()
-
-
