@@ -3,7 +3,7 @@
 ################################################################################
 
 ## Updated upstream
-#fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
+fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
 
 rm(list = ls())
 cat("\014")
@@ -152,7 +152,7 @@ IRmodels <- lapply(1:nrow(orders), function(i) {
 
 dir.create("tabulky", showWarnings = FALSE)
 
-## Hledani nejlepsiho modelu pro CPI
+##Hledani nejlepsiho modelu pro CPI
 # podle AIC
 cpi_aic <- sapply(CPImodels, AIC)
 names(cpi_aic) <- apply(orders, 1, function(x) paste("p", x[1], "q", x[2], sep = "_"))
@@ -167,8 +167,10 @@ names(cpi_bic) <- apply(orders, 1, function(x) paste("p", x[1], "q", x[2], sep =
 best_cpi_model_bic <- CPImodels[[which.min(cpi_bic)]]
 best_cpi_model_bic
 
+
+
 ## Hledani nejlepsiho modelu pro IR
-# podle AIC
+#podle AIC
 ir_aic <- sapply(IRmodels, AIC)
 names(ir_aic) <- apply(orders, 1, function(x) paste("p", x[1], "q", x[2], sep = "_"))
 
@@ -221,65 +223,8 @@ Box.test(best_cpi_model_bic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_aic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box") #tady to pro vyšší lag nevychází, ale fuck it we roll
 
-plot_inv_roots <- function(model, title) {
-  roots <- lapply(c("ar", "ma"), function(x) 1 / polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
-  df <- data.frame(Re = unlist(lapply(roots, Re)),
-                   Im = unlist(lapply(roots, Im)),
-                   Type = rep(c("AR", "MA"), sapply(roots, length)))}
-  
-  ggplot(df, aes(Re, Im, color = Type)) +
-    geom_point(size = 3) +
-    annotate("path", x = cos(seq(0, 2*pi, length.out = 100)),
-             y = sin(seq(0, 2*pi, length.out = 100)), linetype = "dashed") +
-    scale_color_manual(values = c("indianred", "skyblue")) +  # Červená pre AR, modrá pre MA
-    labs(title = title, x = "Reálna časť", y = "Imaginárna časť")
-  
-  
-  # Jednoduchá funkcia na vykreslenie jednotkového kruhu a koreňov ARMA modelu
-  plot_unit_roots <- function(model, title) {
-    # Výpočet koreňov pre AR a MA časti modelu
-    ar_roots <- polyroot(c(1, -model$coef[grep("ar", names(model$coef))]))
-    ma_roots <- polyroot(c(1, model$coef[grep("ma", names(model$coef))]))
-    
-    # Vytvorenie dátového rámca pre AR a MA korene
-    roots_df <- data.frame(
-      Re = c(Re(ar_roots), Re(ma_roots)),
-      Im = c(Im(ar_roots), Im(ma_roots)),
-      Type = rep(c("AR korene", "MA korene"), c(length(ar_roots), length(ma_roots)))
-    )
-    
-    # Vykreslenie grafu pomocou ggplot2
-    ggplot(roots_df, aes(x = Re, y = Im, color = Type)) +
-      geom_point(size = 3) +                          # Korene
-      annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)),
-               y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +  # Jednotkový kruh
-      scale_color_manual(values = c("red", "blue")) +
-      labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
-      coord_fixed() +
-      theme_minimal()
-  }
-  
-  # Vykreslenie pre najlepší CPI model
-  plot_unit_roots(best_cpi_model, "Jednotkový kruh - CPI Model") 
-  
-  # Vykreslenie pre najlepší IR model
-  plot_unit_roots(best_ir_model, "Jednotkový kruh - IR Model")
-  
-  
-  plot_unit_roots <- function(model, title) {
-    roots <- lapply(c("ar", "ma"), function(x) polyroot(c(1, -model$coef[grep(x, names(model$coef))])))
-    df <- data.frame(Re = unlist(lapply(roots, Re)), Im = unlist(lapply(roots, Im)),
-                     Type = rep(c("AR", "MA"), sapply(roots, length)))
-    ggplot(df, aes(Re, Im, color = Type)) + geom_point(size = 3) +
-      annotate("path", x = cos(seq(0, 2 * pi, length.out = 100)),
-               y = sin(seq(0, 2 * pi, length.out = 100)), linetype = "dashed") +
-      labs(title = title, x = "Reálna časť", y = "Imaginárna časť") +
-      coord_fixed() + theme_minimal()
-  }
-  
-  plot_inv_roots(best_cpi_model_aic, "Inverzné korene - CPI")
-  plot_inv_roots(best_ir_model, "Inverzné korene - IR")
-  
+
+
   ############################### ULOHA C. 4 #####################################
 #puvodni funkce od chatu vykreslila dvakrat to same, akorat jednou cervene a jednou modre :-)
 
@@ -328,6 +273,7 @@ ir_fitted <- (p_ir_aic + p_ir_bic + plot_layout(guides = "collect") & theme(lege
 
 
 ############################### ULOHA C. 5 #####################################
+# ====== Časové rady ======
 cpi_monthly <- ts(CPI_value_stac, start = c(1980, 2), frequency = 12)
 ir_monthly  <- ts(IR_value_stac, start = c(1980, 2), frequency = 12)
 
@@ -507,7 +453,7 @@ cat("\n==== Výsledky: Rolling Window ====\n")
   }
 
 
-############################### ULOHA C. 7 #####################################
+  ############################### ULOHA C. 7 #####################################
 # ====== Naivná predikcia pre CPI a IR ======
 
 naive_results <- data.frame(
@@ -600,8 +546,8 @@ actual_ir <- as_tibble(actual_ir_bic) |>
 
 ir_bic_df <- left_join(ir_bic_df, actual_ir, by = c("step", "horizon"))
 
-# Vykreslení CPI BIC
-ggplot(cpi_bic_df, aes(x = step)) +
+# === Vykreslení CPI BIC ===
+p_cpi_bic <- ggplot(cpi_bic_df, aes(x = step)) +
     geom_line(aes(y = actual, color = "Skutečná hodnota")) +
     geom_line(aes(y = predicted, color = "Predikce")) +
     facet_wrap(~ horizon, ncol = 2, labeller = label_both) +
@@ -609,8 +555,10 @@ ggplot(cpi_bic_df, aes(x = step)) +
     scale_color_manual(values = c("Skutečná hodnota" = "black", "Predikce" = "#FF5733")) +
     theme_bw()
 
-# Vykreslení IR BIC
-ggplot(ir_bic_df, aes(x = step)) +
+ggsave("grafy/CPI_bic_multistep.png", plot = p_cpi_bic, width = 10, height = 5, dpi = 300)
+
+# === Vykreslení IR BIC ===
+p_ir_bic <- ggplot(ir_bic_df, aes(x = step)) +
     geom_line(aes(y = actual, color = "Skutečná hodnota")) +
     geom_line(aes(y = predicted, color = "Predikce")) +
     facet_wrap(~ horizon, ncol = 2, labeller = label_both) +
@@ -618,20 +566,24 @@ ggplot(ir_bic_df, aes(x = step)) +
     scale_color_manual(values = c("Skutečná hodnota" = "black", "Predikce" = "#17a589")) +
     theme_bw()
 
+ggsave("grafy/IR_bic_multistep.png", plot = p_ir_bic, width = 10, height = 5, dpi = 300)
 
-#jednokrokove out of sample predikce s intervalem spolehlivosti
-# ===== Out-of-sample predikce pro CPI (BIC model) =====
+# ========== OUT-OF-SAMPLE FORECASTS S INTERVALEM ==========
+library(forecast)
+
 forecast_cpi <- forecast(best_cpi_model_bic, h = 4, level = 95)
+forecast_ir  <- forecast(best_ir_model_bic, h = 4, level = 95)
 
-# ===== Out-of-sample predikce pro IR (BIC model) =====
-forecast_ir <- forecast(best_ir_model_bic, h = 4, level = 95)
-
-# ===== Vykreslení predikce CPI =====
-autoplot(forecast_cpi) +
+# CPI forecast plot
+p_forecast_cpi <- autoplot(forecast_cpi) +
     labs(title = "Out-of-sample predikce CPI – BIC model", x = "Čas", y = "Δ CPI") +
     theme_bw()
 
-# ===== Vykreslení predikce IR =====
-autoplot(forecast_ir) +
+ggsave("grafy/CPI_bic_forecast.png", plot = p_forecast_cpi, width = 10, height = 5, dpi = 300)
+
+# IR forecast plot
+p_forecast_ir <- autoplot(forecast_ir) +
     labs(title = "Out-of-sample predikce IR – BIC model", x = "Čas", y = "Δ log IR") +
     theme_bw()
+
+ggsave("grafy/IR_bic_forecast.png", plot = p_forecast_ir, width = 10, height = 5, dpi = 300)
