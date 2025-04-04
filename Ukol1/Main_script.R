@@ -20,7 +20,7 @@ library(tseries)
 library(gridExtra)
 library(patchwork)
 library(magrittr)
-
+library(forecast)
 
 ################################################################################
 # Import dat
@@ -221,12 +221,10 @@ checkresiduals(best_ir_model_bic)
 Box.test(best_cpi_model_aic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_cpi_model_bic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_aic$residuals, lag = 12, type = "Ljung-Box")
-Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box") #tady to pro vyšší lag nevychází, ale fuck it we roll
+Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box")
 
 
-
-  ############################### ULOHA C. 4 #####################################
-#puvodni funkce od chatu vykreslila dvakrat to same, akorat jednou cervene a jednou modre :-)
+############################### ULOHA C. 4 #####################################
 
 CPI_fitted_aic <- fitted(best_cpi_model_aic)
 CPI_fitted_bic <- fitted(best_cpi_model_bic)
@@ -357,12 +355,6 @@ df <- data.frame(
     )
   }
 
-print(df[1,4])
-print(df[2,4])
-print(df[3,4])
-print(df[4,4])
-
-
   # ==== Rolling window predikcie ====
   df_rolling <- data.frame(
     model = character(),
@@ -452,8 +444,7 @@ cat("\n==== Výsledky: Rolling Window ====\n")
     cat("MAPE:  ", round(df_rolling$MAPE[[i]], 4), "\n")
   }
 
-
-  ############################### ULOHA C. 7 #####################################
+############################### ULOHA C. 7 #####################################
 # ====== Naivná predikcia pre CPI a IR ======
 
 naive_results <- data.frame(
@@ -507,7 +498,7 @@ for (i in 1:nrow(naive_results)) {
     cat("RMSPE: ", round(naive_results$RMSPE[[i]], 4), "\n")
     cat("MAPE:  ", round(naive_results$MAPE[[i]], 4), "\n")
 }
-#mozna by se mel udelat DiebolMArianuv test
+
 ############################### ULOHA C. 8 #####################################
 
 # CPI BIC (model 2)
@@ -569,8 +560,6 @@ p_ir_bic <- ggplot(ir_bic_df, aes(x = step)) +
 ggsave("grafy/IR_bic_multistep.png", plot = p_ir_bic, width = 10, height = 5, dpi = 300)
 
 # ========== OUT-OF-SAMPLE FORECASTS S INTERVALEM ==========
-library(forecast)
-
 forecast_cpi <- forecast(best_cpi_model_bic, h = 4, level = 95)
 forecast_ir  <- forecast(best_ir_model_bic, h = 4, level = 95)
 
