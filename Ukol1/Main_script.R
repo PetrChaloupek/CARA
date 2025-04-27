@@ -224,7 +224,13 @@ Box.test(best_ir_model_aic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box")
 
 
+<<<<<<< HEAD
+
+  ############################### ULOHA C. 4 #####################################
+#puvodni funkce od chatu vykreslila dvakrat to same, akorat jednou cervene a jednou modre :-)
+=======
 ############################### ULOHA C. 4 #####################################
+>>>>>>> origin/main
 
 CPI_fitted_aic <- fitted(best_cpi_model_aic)
 CPI_fitted_bic <- fitted(best_cpi_model_bic)
