@@ -139,3 +139,11 @@ p5 <- ggplot(Y, aes(x = date, y = value_stac)) +
 p5
 
 ggsave(filename = "grafy/y_struc_break.png", plot = p5, width = 8, height = 4, dpi = 300)
+
+# Zivot-Andrews test jednotkoveho korene - hledá potenciální strukturální zlomy
+za_U <- ur.za(U$value_stac, model = c("intercept"), lag=NULL)
+summary(za_U)
+U$date[117]
+za_Y <- ur.za(Y$value_stac, model = c("intercept"), lag=NULL)
+summary(za_Y)
+Y$date[11]
