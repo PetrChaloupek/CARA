@@ -20,7 +20,7 @@ library(tseries)
 library(gridExtra)
 library(patchwork)
 library(magrittr)
-
+library(forecast)
 
 ################################################################################
 # Import dat
@@ -221,12 +221,16 @@ checkresiduals(best_ir_model_bic)
 Box.test(best_cpi_model_aic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_cpi_model_bic$residuals, lag = 12, type = "Ljung-Box")
 Box.test(best_ir_model_aic$residuals, lag = 12, type = "Ljung-Box")
-Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box") #tady to pro vyšší lag nevychází, ale fuck it we roll
+Box.test(best_ir_model_bic$residuals, lag = 8, type = "Ljung-Box")
 
 
+<<<<<<< HEAD
 
   ############################### ULOHA C. 4 #####################################
 #puvodni funkce od chatu vykreslila dvakrat to same, akorat jednou cervene a jednou modre :-)
+=======
+############################### ULOHA C. 4 #####################################
+>>>>>>> origin/main
 
 CPI_fitted_aic <- fitted(best_cpi_model_aic)
 CPI_fitted_bic <- fitted(best_cpi_model_bic)
@@ -357,12 +361,6 @@ df <- data.frame(
     )
   }
 
-print(df[1,4])
-print(df[2,4])
-print(df[3,4])
-print(df[4,4])
-
-
   # ==== Rolling window predikcie ====
   df_rolling <- data.frame(
     model = character(),
@@ -452,8 +450,7 @@ cat("\n==== Výsledky: Rolling Window ====\n")
     cat("MAPE:  ", round(df_rolling$MAPE[[i]], 4), "\n")
   }
 
-
-  ############################### ULOHA C. 7 #####################################
+############################### ULOHA C. 7 #####################################
 # ====== Naivná predikcia pre CPI a IR ======
 
 naive_results <- data.frame(
@@ -507,7 +504,7 @@ for (i in 1:nrow(naive_results)) {
     cat("RMSPE: ", round(naive_results$RMSPE[[i]], 4), "\n")
     cat("MAPE:  ", round(naive_results$MAPE[[i]], 4), "\n")
 }
-#mozna by se mel udelat DiebolMArianuv test
+
 ############################### ULOHA C. 8 #####################################
 
 # CPI BIC (model 2)
@@ -546,8 +543,8 @@ actual_ir <- as_tibble(actual_ir_bic) |>
 
 ir_bic_df <- left_join(ir_bic_df, actual_ir, by = c("step", "horizon"))
 
-# Vykreslení CPI BIC
-ggplot(cpi_bic_df, aes(x = step)) +
+# === Vykreslení CPI BIC ===
+p_cpi_bic <- ggplot(cpi_bic_df, aes(x = step)) +
     geom_line(aes(y = actual, color = "Skutečná hodnota")) +
     geom_line(aes(y = predicted, color = "Predikce")) +
     facet_wrap(~ horizon, ncol = 2, labeller = label_both) +
@@ -555,8 +552,10 @@ ggplot(cpi_bic_df, aes(x = step)) +
     scale_color_manual(values = c("Skutečná hodnota" = "black", "Predikce" = "#FF5733")) +
     theme_bw()
 
-# Vykreslení IR BIC
-ggplot(ir_bic_df, aes(x = step)) +
+ggsave("grafy/CPI_bic_multistep.png", plot = p_cpi_bic, width = 10, height = 5, dpi = 300)
+
+# === Vykreslení IR BIC ===
+p_ir_bic <- ggplot(ir_bic_df, aes(x = step)) +
     geom_line(aes(y = actual, color = "Skutečná hodnota")) +
     geom_line(aes(y = predicted, color = "Predikce")) +
     facet_wrap(~ horizon, ncol = 2, labeller = label_both) +
@@ -564,22 +563,22 @@ ggplot(ir_bic_df, aes(x = step)) +
     scale_color_manual(values = c("Skutečná hodnota" = "black", "Predikce" = "#17a589")) +
     theme_bw()
 
+ggsave("grafy/IR_bic_multistep.png", plot = p_ir_bic, width = 10, height = 5, dpi = 300)
 
-#jednokrokove out of sample predikce s intervalem spolehlivosti
-# ===== Out-of-sample predikce pro CPI (BIC model) =====
+# ========== OUT-OF-SAMPLE FORECASTS S INTERVALEM ==========
 forecast_cpi <- forecast(best_cpi_model_bic, h = 4, level = 95)
+forecast_ir  <- forecast(best_ir_model_bic, h = 4, level = 95)
 
-# ===== Out-of-sample predikce pro IR (BIC model) =====
-forecast_ir <- forecast(best_ir_model_bic, h = 4, level = 95)
-
-# ===== Vykreslení predikce CPI =====
-autoplot(forecast_cpi) +
+# CPI forecast plot
+p_forecast_cpi <- autoplot(forecast_cpi) +
     labs(title = "Out-of-sample predikce CPI – BIC model", x = "Čas", y = "Δ CPI") +
     theme_bw()
 
-# ===== Vykreslení predikce IR =====
-autoplot(forecast_ir) +
+ggsave("grafy/CPI_bic_forecast.png", plot = p_forecast_cpi, width = 10, height = 5, dpi = 300)
+
+# IR forecast plot
+p_forecast_ir <- autoplot(forecast_ir) +
     labs(title = "Out-of-sample predikce IR – BIC model", x = "Čas", y = "Δ log IR") +
     theme_bw()
 
-
+ggsave("grafy/IR_bic_forecast.png", plot = p_forecast_ir, width = 10, height = 5, dpi = 300)
