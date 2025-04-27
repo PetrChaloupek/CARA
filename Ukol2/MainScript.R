@@ -116,20 +116,31 @@ summary(ar_model_U) # Najlepsi pre U je AR(1)
 
 
 # Detekcia zlomu pre HDP a nezamestnanost
-cusum_test_Y <- efp(ar_model_Y$residuals ~ 1, type = "Rec-CUSUM")
+cusum_test_Y <- efp(Y$value_stac ~ 1, type = "Rec-CUSUM")
 plot(cusum_test_Y)
-cusum_test_U <- efp(ar_model_U$residuals ~ 1, type = "Rec-CUSUM")
+cusum_test_U <- efp(U$value_stac ~ 1, type = "Rec-CUSUM")
 plot(cusum_test_U)
 
 
-bp_Y <- breakpoints(ar_model_Y$residuals ~ 1) #nenasla jsem zlom
-bp_U <- breakpoints(ar_model_U$residuals ~ 1) #nema zlom
 
-#ten zlom tam neni a uplne nevim, proc, ale mam za to, ze to delam dobre
-# Graficky iba HDP so zlomom
+bp_Y <- breakpoints(Y$value_stac ~ 1) #nenasla jsem zlom
+bp_U <- breakpoints(U$value_stac ~ 1) #nema zlom
+
+# Zivot-Andrews test jednotkoveho korene - hledá potenciální strukturální zlomy
+za_U <- ur.za(U$value_stac, model = c("intercept", "trend", "both"), lag=NULL)
+summary(za_U)
+
+
+za_Y <- ur.za(Y$value_stac, model = "trend", lag=NULL)
+summary(za_Y)
+
+date_breakpoint <- Y$date[as.integer(za_Y@bpoint)]
+
+
+# HDP se zlomem
 p5 <- ggplot(Y, aes(x = date, y = value_stac)) +
     geom_line(color = "#4BACC6") +
-    geom_vline(xintercept = Y$date[bp_Y$breakpoints],
+    geom_vline(xintercept = Y$date[za_Y@bpoint],
                color = "red", linetype = "dashed") +
     theme_bw() +
     labs(x = "Datum", y = "HDP") +
@@ -140,10 +151,17 @@ p5
 
 ggsave(filename = "grafy/y_struc_break.png", plot = p5, width = 8, height = 4, dpi = 300)
 
-# Zivot-Andrews test jednotkoveho korene - hledá potenciální strukturální zlomy
-za_U <- ur.za(U$value_stac, model = c("intercept"), lag=NULL)
-summary(za_U)
-U$date[117]
-za_Y <- ur.za(Y$value_stac, model = c("intercept"), lag=NULL)
-summary(za_Y)
-Y$date[11]
+# Nezamestnanost se zlomem
+p6 <- ggplot(U, aes(x = date, y = value_stac)) +
+    geom_line(color = "#17a589") +
+    geom_vline(xintercept = U$date[za_U@bpoint],
+               color = "red", linetype = "dashed") +
+    theme_bw() +
+    labs(x = "Datum", y = "Nezamestnanosť") +
+    scale_x_date(date_labels = "%Y", date_breaks = "4 years") +
+    ggtitle("Štrukturálny zlom v stacionárnej rade nezamestnanosti")
+
+p6
+
+ggsave(filename = "grafy/u_struc_break.png", plot = p6, width = 8, height = 4, dpi = 300)
+
