@@ -21,6 +21,9 @@ library(magrittr)
 library(forecast)
 library(strucchange) #napr pro cusum test
 library(urca)
+library(mFilter)
+library(ggcorrplot)
+library(reshape2)
 ################################################################################
 # Import dat
 
@@ -416,3 +419,110 @@ uc_ratio <- ggplot(sign_match_melted, aes(x = Var1, y = Var2, fill = Ratio)) +
 
 ratio <- wrap_plots(yc_ratio, uc_ratio, ncol = 2, nrow = 1)
 ggsave(filename = "grafy/ratio.png", plot = ratio, width = 10, height = 5)
+
+
+#######################################uloha 3########################################
+library(tidyverse)
+
+# Funkce pro hvězdičky
+get_significance_stars <- function(pval) {
+    ifelse(pval < 0.001, "***",
+           ifelse(pval < 0.01, "**",
+                  ifelse(pval < 0.05, "*",
+                         ifelse(pval < 0.1, ".", ""))))
+}
+
+# --- Příprava dat ---
+uc <- as.tibble(pom_uc_ts)
+yc <- as.tibble(pom_yc_ts)
+
+names(yc) <- paste0("yc_", 1:8)
+names(uc) <- paste0("uc_", 1:8)
+data_okun <- bind_cols(uc, yc)
+
+data_okun <- data_okun %>%
+    mutate(date = seq.Date(from = as.Date("1961-01-01"), by = "quarter", length.out = nrow(data_okun)),
+           break_2008 = ifelse(date >= as.Date("2008-10-01"), 1, 0))
+
+original_vars <- names(data_okun)[1:16]
+
+for (var in original_vars) {
+    data_okun <- data_okun %>%
+        mutate(!!paste0(var, "_2008") := .data[[var]] * break_2008)
+}
+
+# --- Základní modely ---
+results_list_base <- list()
+
+for (i in 1:8) {
+    uc_var <- paste0("uc_", i)
+    yc_var <- paste0("yc_", i)
+    formula <- as.formula(paste(uc_var, "~", yc_var))
+    model_base <- glm(formula, data = data_okun)
+
+    coefficients <- summary(model_base)$coefficients
+    coefs_pvals <- data.frame(
+        Variable = rownames(coefficients),
+        Coefficient = coefficients[, "Estimate"],
+        PValue = coefficients[, "Pr(>|t|)"]
+    )
+
+    coefs_pvals$Model <- paste0("Model_", i)
+    coefs_pvals$Dependent <- uc_var
+    coefs_pvals$Signif <- get_significance_stars(coefs_pvals$PValue)
+
+    results_list_base[[i]] <- coefs_pvals
+}
+
+results_table_base <- bind_rows(results_list_base)
+
+# --- Modely se zlomem v roce 2008 ---
+results_list_2008 <- list()
+
+for (i in 1:8) {
+    uc_var <- paste0("uc_", i)
+    yc_var <- paste0("yc_", i)
+    yc_2008_var <- paste0("yc_", i, "_2008")
+    formula <- as.formula(paste(uc_var, "~", yc_var, "+", yc_2008_var))
+    model_2008 <- glm(formula, data = data_okun)
+
+    coefficients <- summary(model_2008)$coefficients
+    coefs_pvals <- data.frame(
+        Variable = rownames(coefficients),
+        Coefficient = coefficients[, "Estimate"],
+        PValue = coefficients[, "Pr(>|t|)"]
+    )
+
+    coefs_pvals$Model <- paste0("Model_", i)
+    coefs_pvals$Dependent <- uc_var
+    coefs_pvals$Signif <- get_significance_stars(coefs_pvals$PValue)
+
+    results_list_2008[[i]] <- coefs_pvals
+}
+
+results_table_2008 <- bind_rows(results_list_2008)
+
+# --- Výstup do txt: základní model ---
+output_file_base <- "okun_base_model.txt"
+file_conn_base <- file(output_file_base, open = "wt")
+
+for (i in 1:8) {
+    cat(paste0("Model_", i, " (Dependent: uc_", i, ")\n"), file = file_conn_base, append = TRUE)
+    capture.output(print(results_list_base[[i]]), file = file_conn_base, append = TRUE)
+    cat("\n\n", file = file_conn_base, append = TRUE)
+}
+
+close(file_conn_base)
+
+# --- Výstup do txt: model se zlomem ---
+output_file_2008 <- "okun_model_2008.txt"
+file_conn_2008 <- file(output_file_2008, open = "wt")
+
+for (i in 1:8) {
+    cat(paste0("Model_", i, " (Dependent: uc_", i, ")\n"), file = file_conn_2008, append = TRUE)
+    capture.output(print(results_list_2008[[i]]), file = file_conn_2008, append = TRUE)
+    cat("\n\n", file = file_conn_2008, append = TRUE)
+}
+
+close(file_conn_2008)
+
