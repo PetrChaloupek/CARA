@@ -1,11 +1,6 @@
 ################################################################################
 ######################## CASOVE RADY - UKOL C. 2 ###############################
 ################################################################################
-rm(list = ls())
-cat("\014")
-
-fredr_set_key("95afb798f45e5bc52f67c5ae1ab7ef19") #toto je pro Dobi, kdyztak si to zakomentujte
-
 # Nacteni potrebnych balicku
 library(dplyr)
 library(ggplot2)
@@ -169,7 +164,7 @@ ggsave(filename = "grafy/u_struc_break.png", plot = p6, width = 8, height = 4, d
 ############################### ULOHA C. 2 #####################################
 # Použití HP filtru
 
-yc_hp <- hpfilter(Y$value,freq = 1600,type = "lambda",drift = FALSE)$cycle %>% ts(start = c(1980,1),frequency = 4)
+yc_hp <- hpfilter(Y$value,freq = 1600,type = "lambda",drift = FALSE)$cycle %>% ts(start = c(1980,1),frequency = 4) * 100
 autoplot(yc_hp, size = 1, color = "orange")
 
 uc_hp <- hpfilter(U$value, freq = 1600,type = "lambda", drift = FALSE)$cycle %>% ts(start = c(1980,1), frequency = 4)
@@ -306,6 +301,8 @@ pom_yc_ts <- ts.union(yc_po_ts, yc_sma_ts, yc_wma_ts, yc_hp)
 colnames(pom_yc_ts) <- c(colnames(yc_po_ts),
                          "yc_sma","yc_wma","yc_hp")
 
+pom_yc_ts <- pom_yc_ts * 100
+
 #Korelační matice
 corr_yc <- round(cor(pom_yc_ts, use = "complete.obs"),3)
 print(corr_yc)
@@ -441,7 +438,7 @@ names(uc) <- paste0("uc_", 1:8)
 data_okun <- bind_cols(uc, yc)
 
 data_okun <- data_okun %>%
-    mutate(date = seq.Date(from = as.Date("1961-01-01"), by = "quarter", length.out = nrow(data_okun)),
+    mutate(date = seq.Date(from = as.Date("1980-01-01"), by = "quarter", length.out = nrow(data_okun)),
            break_2008 = ifelse(date >= as.Date("2008-10-01"), 1, 0))
 
 original_vars <- names(data_okun)[1:16]

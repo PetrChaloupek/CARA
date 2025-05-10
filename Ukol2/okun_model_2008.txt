@@ -1,48 +1,56 @@
 Model_1 (Dependent: uc_1)
-               Variable   Coefficient       PValue   Model Dependent Signif
-(Intercept) (Intercept)  5.603465e-17 1.000000e+00 Model_1      uc_1       
-yc_1               yc_1 -3.027166e+01 1.002534e-36 Model_1      uc_1    ***
+               Variable  Coefficient       PValue   Model Dependent Signif
+(Intercept) (Intercept)  0.004883171 8.837467e-01 Model_1      uc_1       
+yc_1               yc_1 -0.314553505 4.481399e-36 Model_1      uc_1    ***
+yc_1_2008     yc_1_2008  0.106354298 6.408119e-02 Model_1      uc_1      .
 
 
 Model_2 (Dependent: uc_2)
-               Variable   Coefficient       PValue   Model Dependent Signif
-(Intercept) (Intercept) -2.563403e-16 1.000000e+00 Model_2      uc_2       
-yc_2               yc_2 -2.914810e+01 3.851638e-36 Model_2      uc_2    ***
+               Variable  Coefficient       PValue   Model Dependent Signif
+(Intercept) (Intercept)  0.003765913 9.033548e-01 Model_2      uc_2       
+yc_2               yc_2 -0.299743464 1.165024e-35 Model_2      uc_2    ***
+yc_2_2008     yc_2_2008  0.102780269 1.134196e-01 Model_2      uc_2       
 
 
 Model_3 (Dependent: uc_3)
-               Variable   Coefficient       PValue   Model Dependent Signif
-(Intercept) (Intercept) -1.352253e-18 1.000000e+00 Model_3      uc_3       
-yc_3               yc_3 -2.955816e+01 7.389369e-38 Model_3      uc_3    ***
+               Variable  Coefficient       PValue   Model Dependent Signif
+(Intercept) (Intercept)  0.003384822 9.093104e-01 Model_3      uc_3       
+yc_3               yc_3 -0.302430511 1.446287e-37 Model_3      uc_3    ***
+yc_3_2008     yc_3_2008  0.110861692 1.209762e-01 Model_3      uc_3       
 
 
 Model_4 (Dependent: uc_4)
                Variable   Coefficient       PValue   Model Dependent Signif
-(Intercept) (Intercept) -1.280369e-16 1.000000e+00 Model_4      uc_4       
-yc_4               yc_4 -3.380094e+01 3.770471e-56 Model_4      uc_4    ***
+(Intercept) (Intercept)  0.0008279272 9.706241e-01 Model_4      uc_4       
+yc_4               yc_4 -0.3395463318 4.250157e-55 Model_4      uc_4    ***
+yc_4_2008     yc_4_2008  0.0419874111 5.630522e-01 Model_4      uc_4       
 
 
 Model_5 (Dependent: uc_5)
-               Variable   Coefficient       PValue   Model Dependent Signif
-(Intercept) (Intercept)  1.221511e-16 1.000000e+00 Model_5      uc_5       
-yc_5               yc_5 -3.542469e+01 4.210827e-58 Model_5      uc_5    ***
+               Variable Coefficient       PValue   Model Dependent Signif
+(Intercept) (Intercept)  0.00059037 9.778927e-01 Model_5      uc_5       
+yc_5               yc_5 -0.35573262 1.497646e-57 Model_5      uc_5    ***
+yc_5_2008     yc_5_2008  0.07831867 4.374639e-01 Model_5      uc_5       
 
 
 Model_6 (Dependent: uc_6)
                Variable Coefficient       PValue   Model Dependent Signif
-(Intercept) (Intercept)    0.010264 6.364830e-01 Model_6      uc_6       
-yc_6               yc_6  -38.007317 1.321021e-40 Model_6      uc_6    ***
+(Intercept) (Intercept)  0.00134589 9.510910e-01 Model_6      uc_6       
+yc_6               yc_6 -0.36253261 3.893165e-35 Model_6      uc_6    ***
+yc_6_2008     yc_6_2008 -0.10757966 4.814847e-02 Model_6      uc_6      *
 
 
 Model_7 (Dependent: uc_7)
-               Variable   Coefficient       PValue   Model Dependent Signif
-(Intercept) (Intercept)   0.001474972 9.016598e-01 Model_7      uc_7       
-yc_7               yc_7 -26.373465790 4.643921e-22 Model_7      uc_7    ***
+               Variable  Coefficient       PValue   Model Dependent Signif
+(Intercept) (Intercept)  0.001493894 9.010495e-01 Model_7      uc_7       
+yc_7               yc_7 -0.264018880 9.314355e-18 Model_7      uc_7    ***
+yc_7_2008     yc_7_2008  0.001077473 9.834959e-01 Model_7      uc_7       
 
 
 Model_8 (Dependent: uc_8)
                Variable   Coefficient       PValue   Model Dependent Signif
-(Intercept) (Intercept) -1.233977e-16 1.000000e+00 Model_8      uc_8       
-yc_8               yc_8 -3.327747e-03 1.516885e-47 Model_8      uc_8    ***
+(Intercept) (Intercept)  7.236046e-04 9.764125e-01 Model_8      uc_8       
+yc_8               yc_8 -3.340646e-07 5.548435e-40 Model_8      uc_8    ***
+yc_8_2008     yc_8_2008  4.988093e-09 8.927798e-01 Model_8      uc_8       
 
 
